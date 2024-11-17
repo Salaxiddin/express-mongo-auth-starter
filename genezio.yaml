@@ -1,69 +1,45 @@
-# The name of the project.
-name: express-mongo-auth-starter
-# The region where the project is deployed. Available regions: us-east-1, eu-central-1
-region: us-east-1
-# The version of the Genezio YAML configuration to parse.
-yamlVersion: 2
 backend:
-  # The root directory of the backend.
-  path: ./server
-  # Information about the backend's programming language.
-  language:
-    # The name of the programming language.
-    name: js
-    # The package manager used by the backend.
-    packageManager: npm
-  # Information about the backend's functions.
-  functions:
-    # The name (label) of the function.
-    - name: express-auth-starter
-      # The path to the function's code.
-      path: ./
-      # The name of the function handler
-      handler: handler
-      # The entry point for the function.
-      entry: app.mjs
-      # The compatibility of the function handler.
-      type: httpServer
-  # Scripts are running in the specified `path` directory.
-  scripts:
-    # List of scripts to run before deploying the frontend.
-    deploy: npm install
-    # List of scripts that build your frontend before deployment. It should populate the specified `publish` directory.
-    local: npm install
-
-# Information about the backend's services.
-services:
-  databases:
-    - name: my-mongo-db
-      region: us-east-1
-      type: mongo-atlas
-  authentication:
-    database:
-      name: my-mongo-db
-    providers:
-      email: true
-    settings:
-      resetPassword:
-        redirectUrl: https://${{frontend.express-auth-client.subdomain}}.app.genez.io/reset
-
+    functions:
+        - entry: app.mjs
+          handler: handler
+          name: express-auth-starter
+          path: ./
+          type: httpServer
+    language:
+        name: js
+        packageManager: npm
+    path: ./server
+    scripts:
+        deploy: npm install
+        local: npm install
 frontend:
-  # The name of the frontend.
-  name: express-auth-client
-  # The folder where the frontend scripts will run.
-  path: ./client
-  # Specifies information about the SDK generation. If not specified, the SDK will not be generated for this frontend.
-  # The directory that will be published to the CDN. It is relative to the `path` directory.
-  publish: ./dist
-  scripts:
-    # List of scripts to run before deploying the frontend.
-    deploy: npm install
-    start:
-      - npm install
-      - npm run dev
-    build: npm run build
-  # Environment variables that will be injected into the frontend.
-  environment:
-    VITE_API_URL: ${{ backend.functions.express-auth-starter.url }}
-    VITE_AUTH_TOKEN: ${{services.authentication.token}}
-    VITE_AUTH_REGION: ${{services.authentication.region}}
+    environment:
+        VITE_API_URL: ${{ backend.functions.express-auth-starter.url }}
+        VITE_AUTH_REGION: ${{services.authentication.region}}
+        VITE_AUTH_TOKEN: ${{services.authentication.token}}
+    name: express-auth-client
+    path: ./client
+    publish: ./dist
+    scripts:
+        build: npm run build
+        deploy: npm install
+        start:
+            - npm install
+            - npm run dev
+    subdomain: express-mongo-auth
+name: express-mongo-auth
+region: us-east-1
+services:
+    authentication:
+        database:
+            name: my-mongo-db
+        providers:
+            email: true
+        settings:
+            resetPassword:
+                redirectUrl: https://${{frontend.express-auth-client.subdomain}}.app.genez.io/reset
+    databases:
+        - name: my-mongo-db
+          region: us-east-1
+          type: mongo-atlas
+yamlVersion: 2
